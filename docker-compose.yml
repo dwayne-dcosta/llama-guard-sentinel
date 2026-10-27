@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  sentinel-gateway:
+    build: .
+    container_name: llama_guard_sentinel_proxy
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config:/app/config     # Persists policy rules dynamically without image rebuilding
+      - ./src:/app/src           # Mounts active codebase changes instantly
+      - ./telemetry:/app/telemetry
+    environment:
+      - SENTINEL_PROXY_KEY=sentinel-local-dev-secret
+      - META_MODEL_API_KEY=mock-dev-key # Replace this with your live Fireworks key later!
+      - META_MODEL_API_BASE_URL=https://fireworks.ai
+      - LLAMA_GUARD_MODEL_ID=llama-guard-3-8b
+    restart: unless-stopped
+

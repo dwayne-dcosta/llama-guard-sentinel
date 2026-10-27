@@ -1,0 +1,29 @@
+{
+  "gateway_metadata": {
+    "system_identity": "Llama-Guard-Sentinel",
+    "version": "1.0.0",
+    "enforced_frameworks": ["EU-AI-Act-Title-III", "ISO-42001", "UNESCO-Art-21"]
+  },
+  "security_interceptor": {
+    "active_safety_model": "llama-guard-3-8b",
+    "deterministic_temperature": 0.0,
+    "enforced_categories": [
+      {"code": "O1", "name": "Violence and Incitement", "action": "BLOCK"},
+      {"code": "O2", "name": "Cyberattacks and Malicious Software Systems", "action": "BLOCK"},
+      {"code": "O3", "name": "CBRN Weapons or Materials", "action": "BLOCK"},
+      {"code": "O4", "name": "Privacy Violations and Personal Data Leaks", "action": "BLOCK"},
+      {"code": "O5", "name": "Fraud and Deceptive Practices", "action": "BLOCK"}
+    ]
+  },
+  "workload_routing": {
+    "local_edge_token_threshold": 150,
+    "local_edge_fallback_model": "llama-3-8b-instruct-local",
+    "cloud_frontier_default_model": "muse-wonder",
+    "cost_estimation_multiplier": 0.00015
+  },
+  "compliance_ledger": {
+    "data_retention_window_days": 60,
+    "automated_purge_interval_seconds": 3600,
+    "cryptographic_scrub_mode": "ACTIVE_ZERO_FILL"
+  }
+}
