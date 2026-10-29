@@ -1,22 +1,20 @@
 import os
-import asyncio
 import time
 import uuid
-from fastapi import FastAPI, HTTPException, Depends, Security
+import asyncio
+from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.responses import StreamingResponse
 from fastapi.security import APIKeyHeader
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
-from dotenv import load_dotenv
+from typing import List, Optional
 
-# Internal modular imports prepared for upcoming logic steps
+# Internal architectural component modules
 from src.interceptor import security_audit_payload
 from src.router import dynamic_token_route
 from src.circuit_breaker import execute_fallback_pipeline
 from src.compliance import compliance_engine
-
-
-load_dotenv()
+from telemetry.metrics_exporter import metrics_exporter
 
 app = FastAPI(
     title="Llama-Guard Sentinel",
@@ -24,12 +22,19 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enforce secure network boundaries using api token headers
+# Enable CORS so your local backend accepts requests from the Lovable app domain
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows your frontend UI to communicate across origins cleanly
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 API_KEY_NAME = "Authorization"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 async def verify_proxy_authentication(api_key: str = Depends(api_key_header)):
-    """Validates incoming enterprise authorization tokens at the perimeter gateway."""
     expected_token = os.getenv("SENTINEL_PROXY_KEY", "sentinel-local-dev-secret")
     if not api_key or api_key.replace("Bearer ", "") != expected_token:
         raise HTTPException(
@@ -38,17 +43,15 @@ async def verify_proxy_authentication(api_key: str = Depends(api_key_header)):
         )
     return api_key
 
-# --- Structured API Data Schema Specifications ---
 class ChatMessage(BaseModel):
     role: str = Field(..., description="The role of the message author (system, user, assistant)")
     content: str = Field(..., description="The actual string payload content of the message")
 
 class ChatCompletionRequest(BaseModel):
-    model: str = Field("muse-wonder", description="Target model identifier from Meta Model API family")
+    model: str = Field("meta-models/muse-spark-open-1026", description="Target model identifier")
     messages: List[ChatMessage]
     temperature: Optional[float] = 0.2
     stream: Optional[bool] = False
-    max_tokens: Optional[int] = Field(None, description="Hard token generation threshold allocation limit")
 
 @app.on_event("startup")
 async def initialize_compliance_daemons():
@@ -56,35 +59,34 @@ async def initialize_compliance_daemons():
     asyncio.create_task(compliance_engine.execute_cryptographic_purge_sweep())
     print("[Sentinel Gateway Core] Asynchronous Governance Daemon Threads Spun Up Successfully.")
 
-
 @app.get("/health", tags=["Infrastructure Maintenance"])
-async def systems_health_check():
-    """System health check endpoint for tracking local runtime status logs."""
+async def systems_health_check(authenticated: str = Depends(verify_proxy_authentication)):
+    """Exposes gateway health node verification status for secure frontend login checks."""
     return {
         "status": "operational",
         "gateway": "Llama-Guard-Sentinel",
         "timestamp": time.time(),
-        "compliance_enforcement": "active",
-        "active_frameworks": ["EU-AI-Act-Title-III", "ISO-42001", "UNESCO-Art-21"]
+        "compliance_enforcement": "active"
     }
+
+@app.get("/v1/telemetry/metrics", tags=["Operations Telemetry"])
+async def get_gateway_telemetry():
+    """Returns machine-parsable, real-time performance analytics snapshots."""
+    return metrics_exporter.export_prometheus_snapshot()
 
 @app.post("/v1/chat/completions", tags=["Core Proxy Engine"])
 async def proxy_chat_completion(
     request: ChatCompletionRequest,
-    authenticated: str = Depends(verify_proxy_authentication)
+    authenticated: str = Depends(verify_proxy_authentication),
+    x_fireworks_key: Optional[str] = Header(None)  # Dynamic user key passed from the frontend UI
 ):
-    """
-    Main Asynchronous Gateway Ingestion Route.
-    Intercepts standard LLM client configurations, runs compliance audits, 
-    and handles dynamic routing loops across the Meta Model API ecosystem.
-    """
-    
-    # Extract raw content strings sequentially out of the message array
+    start_time = time.time()
     user_payload_string = " ".join([msg.content for msg in request.messages if msg.role == "user"])
     
-    # 🛑 PHASE 1: Real-time Multi-Category Safety Classification (src/interceptor.py)
-    is_safe, safety_report = await security_audit_payload(user_payload_string)
+    # 🛑 PHASE 1: Safety Classification Intercept using dynamic request credential tokens
+    is_safe, safety_report = await security_audit_payload(user_payload_string, x_fireworks_key)
     if not is_safe:
+        await metrics_exporter.register_violation()
         raise HTTPException(
             status_code=400,
             detail={
@@ -94,32 +96,31 @@ async def proxy_chat_completion(
             }
         )
         
-    # 📊 PHASE 2: Capacity Budgeting & Cost Allocation (src/router.py)
+    # 📊 PHASE 2: Capacity Budgeting & Cost Allocation
     routing_decision = await dynamic_token_route(request.model, user_payload_string)
     
-    # 🚢 PHASE 3: Compute Execution Layer & Failure Fallbacks (src/circuit_breaker.py)
+    # 🚢 PHASE 3: Compute Execution Layer passing dynamic tokens over the wire
     try:
         if request.stream:
-            # Generate asynchronous chunk parsing vectors directly to the pipeline client
-            generator_stream = await execute_fallback_pipeline(routing_decision, request, stream=True)
+            generator_stream = await execute_fallback_pipeline(routing_decision, request, x_fireworks_key, stream=True)
             return StreamingResponse(generator_stream, media_type="text/event-stream")
         else:
-            static_response = await execute_fallback_pipeline(routing_decision, request, stream=False)
-            return static_response
-
+            static_response = await execute_fallback_pipeline(routing_decision, request, x_fireworks_key, stream=False)
+            
             # 📉 PHASE 4: Register audit trail into the automated governance ledger
-            import uuid
-            generated_task_id = str(uuid.uuid4())
-            await compliance_engine.register_audit_entry(generated_task_id, routing_decision)
-
+            await compliance_engine.register_audit_entry(str(uuid.uuid4()), routing_decision)
+            
+            # 📈 PHASE 5: Process tracking metrics
+            duration_ms = (time.time() - start_time) * 1000
+            await metrics_exporter.log_transaction_metrics(routing_decision, duration_ms)
+            
+            return static_response
             
     except Exception as downstream_infrastructure_error:
-        # Gracefully handle unexpected pipeline breaks via standard server failures
         raise HTTPException(
             status_code=502,
             detail={
                 "error": "Bad Gateway Cluster Node Response",
-                "underlying_cause": str(downstream_infrastructure_error),
-                "resolution": "Downstream circuit breaker state triggered automatically."
+                "underlying_cause": str(downstream_infrastructure_error)
             }
         )
