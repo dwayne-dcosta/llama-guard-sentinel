@@ -18,7 +18,7 @@
   "workload_routing": {
     "local_edge_token_threshold": 150,
     "local_edge_fallback_model": "llama-3-8b-instruct-local",
-    "cloud_frontier_default_model": "muse-wonder",
+    "cloud_frontier_default_model": "meta-models/muse-spark-open-1026",
     "cost_estimation_multiplier": 0.00015
   },
   "compliance_ledger": {
