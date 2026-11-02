@@ -28,6 +28,8 @@ export const Auth: React.FC = () => {
   const [role, setRole] = useState<UserAccount['role']>('operator');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [operatorRole, setOperatorRole] = useState('Operator (Cockpit & Execution)');
+
 
   // Redirect to cockpit if operator already holds an authenticated session
   useEffect(() => {
@@ -36,7 +38,7 @@ export const Auth: React.FC = () => {
     }
   }, [user, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
@@ -45,13 +47,21 @@ export const Auth: React.FC = () => {
       if (activeTab === 'signin') {
         const res = await signIn(email, password);
         if (res.success) {
+          // SAVE TO LOCAL STORAGE ON SUCCESSFUL SIGN IN
+          localStorage.setItem('auth_session', 'sentinel-secure-jwt-token-hash');
+          localStorage.setItem('assigned_operator_role', operatorRole);
+          localStorage.setItem('operator_email', email);
           navigate('/dashboard');
         } else {
           setError(res.message);
         }
       } else {
-        const res = await signUp({ email, fullName, password, role });
+        const res = await signUp({ email, fullName, password, role: operatorRole  as any });
         if (res.success) {
+          // SAVE TO LOCAL STORAGE ON SUCCESSFUL SIGN UP
+          localStorage.setItem('auth_session', 'sentinel-secure-jwt-token-hash');
+          localStorage.setItem('assigned_operator_role', operatorRole);
+          localStorage.setItem('operator_email', email);
           navigate('/dashboard');
         } else {
           setError(res.message);
@@ -66,8 +76,13 @@ export const Auth: React.FC = () => {
 
   const handleDemoLogin = () => {
     seedDemoAccount();
+    // SEED LOCAL STORAGE FOR THE DEMO USER AS WELL
+    localStorage.setItem('auth_session', 'sentinel-secure-jwt-token-hash');
+    localStorage.setItem('assigned_operator_role', 'operator');
+    localStorage.setItem('operator_email', 'alex.vance@sentinel.internal');
     navigate('/dashboard');
   };
+
 
   return (
     <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 bg-[#000000] overflow-hidden text-zinc-100 font-mono">
@@ -273,8 +288,8 @@ export const Auth: React.FC = () => {
                       <Cpu className="w-4 h-4" />
                     </div>
                     <select
-                      value={role}
-                      onChange={(e) => setRole(e.target.value as UserAccount['role'])}
+                      value={operatorRole}
+                      onChange={(e) => setOperatorRole(e.target.value as UserAccount['role'])}
                       className="w-full bg-[#000000] border border-cyan-500/30 focus:border-cyan-400 rounded-xl py-2.5 pl-10 pr-3.5 text-cyan-300 focus:outline-none cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.06)]"
                     >
                       <option value="operator">Operator (Cockpit & Execution)</option>
