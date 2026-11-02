@@ -1,0 +1,8 @@
+{
+  "name": "Sentinel Edge Operator Portal",
+  "description": "Enterprise-grade operator cockpit, edge security gateway, and system documentation matrix with route isolation and tool provisioning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  * {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  body {
+    background-color: #000000;
+    color: #f1f5f9;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+.bg-space-dark {
+  background-color: #0B0F19;
+}
+
+.bg-enclave-pane {
+  background-color: #0B1329;
+}
+
+.text-neon-cyan {
+  color: #06B6D4;
+}
+
+.border-neon-cyan {
+  border-color: #06B6D4;
+}
+
+.bg-neon-teal {
+  background-color: #14B8A6;
+}
+
+.text-neon-teal {
+  color: #14B8A6;
+}
+
+.glow-cyan {
+  box-shadow: 0 0 25px -4px rgba(6, 182, 212, 0.35);
+}
+
+.glow-teal {
+  box-shadow: 0 0 25px -4px rgba(20, 184, 166, 0.35);
+}
+
+.cyber-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(6, 182, 212, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(6, 182, 212, 0.04) 1px, transparent 1px);
+}
