@@ -584,7 +584,7 @@ export const Dashboard: React.FC = () => {
                   <button
                     onClick={() => {
                       setSelectedClusterNode('baseten_runtime');
-                      setBaseUrl('https://bridge.sentinel-mesh.internal');
+                      setBaseUrl('http://127.0.0.1:8000');
                       setClusterDropdownOpen(false);
                     }}
                     className={`w-full text-left p-2.5 rounded-lg transition-colors flex items-center justify-between cursor-pointer mt-1 ${
