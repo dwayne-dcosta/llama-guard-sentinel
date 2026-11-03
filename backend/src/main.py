@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.responses import StreamingResponse
 from fastapi.security import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -77,9 +78,15 @@ async def get_gateway_telemetry():
 @app.post("/v1/chat/completions", tags=["Core Proxy Engine"])
 async def proxy_chat_completion(
     request: ChatCompletionRequest,
+    http_req: Request,
     authenticated: str = Depends(verify_proxy_authentication),
     x_fireworks_key: Optional[str] = Header(None)  # Dynamic user key passed from the frontend UI
 ):
+    # Extract identity metadata from incoming frontend headers
+    operator_role = http_req.headers.get("X-Operator-Role", "Unknown Role")
+    operator_email = http_req.headers.get("X-Operator-Email", "Unknown Email")
+    print(f"[SENTINEL INGRESS BOUNDARY] Ingestion request verified for: {operator_email} ({operator_role})")
+
     start_time = time.time()
     user_payload_string = " ".join([msg.content for msg in request.messages if msg.role == "user"])
     
