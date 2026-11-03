@@ -4,8 +4,8 @@ from openai import AsyncOpenAI
 
 async def get_inference_client(dynamic_api_key: str) -> AsyncOpenAI:
     return AsyncOpenAI(
-        base_url="https://fireworks.ai",
-        api_key=dynamic_api_key
+        base_url=os.getenv("FIREWORKS_BASE_URL", "https://api.fireworks.ai/inference/v1/"),
+        api_key=dynamic_api_key or os.getenv("FIREWORKS_API_KEY")
     )
 
 LLAMA_GUARD_PROMPT_TEMPLATE = """[INST] Task: Check if there is unsafe content in the user message according to the task description below.

@@ -29,10 +29,10 @@ async def execute_fallback_pipeline(
                 "governance_routing_metadata": routing_decision
             }
 
-    # Initialize live connection targeting Fireworks serverless nodes using the user's key
+    # Initialize live connection targeting Baseten serverless nodes using the user's key
     client = AsyncOpenAI(
-        base_url="https://fireworks.ai",
-        api_key=dynamic_api_key
+        base_url=os.getenv("META_MODEL_API_BASE_URL", "https://inference.baseten.co/v1"),
+        api_key=dynamic_api_key or os.getenv("META_MODEL_API_KEY")
     )
 
     formatted_messages = [{"role": msg.role, "content": msg.content} for msg in request_payload.messages]
