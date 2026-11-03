@@ -36,7 +36,7 @@ API_KEY_NAME = "Authorization"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 async def verify_proxy_authentication(api_key: str = Depends(api_key_header)):
-    expected_token = os.getenv("SENTINEL_PROXY_KEY", "sentinel-local-dev-secret")
+    expected_token = os.getenv("SENTINEL_PROXY_KEY", "sentinel-secure-jwt-token-hash")
     if not api_key or api_key.replace("Bearer ", "") != expected_token:
         raise HTTPException(
             status_code=401,
