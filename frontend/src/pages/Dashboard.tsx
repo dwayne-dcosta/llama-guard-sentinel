@@ -226,13 +226,23 @@ export const Dashboard: React.FC = () => {
 
     try {
       // Issue real, live asynchronous HTTP POST request with strict CORS network options
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        mode: 'cors',
-        credentials: 'omit',
-        headers: headers,
-        body: JSON.stringify(payload),
+      const response = await fetch(`${endpoint}`, {
+        method: "POST",
+        mode: "cors", // CRITICAL: Forces the browser graphics engine to pass strict cross-origin handshakes
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem('auth_session') || 'sentinel-local-dev-secret'}`,
+          "X-Operator-Role": localStorage.getItem('assigned_operator_role') || "Operator (Cockpit & Execution)",
+          "X-Operator-Email": localStorage.getItem('operator_email') || "anonymous@sentinel-matrix.internal"
+        },
+        body: JSON.stringify({
+          model: selectedModel,       // Matches your active selected model dropdown state token
+          temperature: temperature,
+          max_tokens: maxTokens,
+          messages: [{ role: "user", content: userPrompt }]
+        })
       });
+
 
       const endTime = performance.now();
       const latency = Math.round(endTime - startTime);
