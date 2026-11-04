@@ -1,8 +1,10 @@
-# 🛡️ Llama Guard Sentinel
+## 🛡️ Llama Guard Sentinel
 
 Llama Guard Sentinel is an enterprise-grade AI Governance Gateway and Perimeter Security Ingress Proxy designed to intercept, audit, and secure Large Language Model (LLM) inference streams. Built around a high-performance **FastAPI asynchronous engine** and a **React/TypeScript monitoring cockpit**, the architecture provides deterministic mitigation against prompt injection, toxic payloads, and unsafe content vectors before malicious inputs can penetrate core computing nodes.
 
-# 🗺️ Architectural Process Mapping
+****
+
+## 🗺️ Architectural Process Mapping
 
 The framework employs a multi-tier, decoupled pipeline architecture across local containerized topologies and remote serverless hardware cluster runtimes.
 ```txt
@@ -45,7 +47,9 @@ The framework employs a multi-tier, decoupled pipeline architecture across local
 * **Primary Cluster Routing:** The engine establishes an asynchronous connection handshake over the **Baseten Serverless Hardware Infrastructure** using active .env token pools.
 * **Circuit Breaker Protocol:** Runtime thresholds (latency, timeouts, connection degradation) are evaluated continually. If a cluster node anomalies threshold is breached, the execution system intercepts the failure, blocks backend locking, and switches routes to backup failover fallback configurations instantly.
 
-# 🛠️ Project Structure
+****
+
+## 🛠️ Project Structure
 
 ```txt
 llama-guard-sentinel/
@@ -67,9 +71,11 @@ llama-guard-sentinel/
 │   │   └── ...
 ```
 
-# 🚀 Rapid Deployment Deployment Guide
+****
 
-# 🐳 Running via Container Package (GitHub Container Registry)
+## 🚀 Rapid Deployment Deployment Guide
+
+## 🐳 Running via Container Package (GitHub Container Registry)
 
 To pull and execute the compiled production-ready backend image layer directly from our public registry, pass the following sequence:
 
@@ -81,7 +87,9 @@ docker pull ghcr.io/dwayne-dcosta/llama-guard-sentinel-backend:v1.0.0
 docker run -p 8000:8000 --env-file ./backend/.env ghcr.io/dwayne-dcosta/llama-guard-sentinel-backend:v1.0.0
 ```
 
-# 🔨 Running via Source Code Workspace (Docker Compose)
+****
+
+## 🔨 Running via Source Code Workspace (Docker Compose)
 
 To compile the multi-tier monorepo components inside an isolated network sandbox natively from the source repository:
 
@@ -100,10 +108,14 @@ cd backend
 docker compose up --build
 ```
 
-# 🌐 Production Node Enclaves
+****
+
+## 🌐 Production Node Enclaves
 * **Global Operator Console Frontend (Edge Hosted):** `llama-guard-sentinel.vercel.app`
 * **Local Ingress Proxy Node (Dockerized Backend):** `http://localhost:8000`
   
-# 🔒 Security & Compliance
+****
+
+## 🔒 Security & Compliance
 * All credentials, private workspace nodes, and operational tokens are dynamically injected via environment arrays (`.env`) locked down behind global `.gitignore` patterns.
 * System operations maintain strict CORS separation, isolating client visualization states completely from server compute domains.
