@@ -95,7 +95,7 @@ To compile the multi-tier monorepo components inside an isolated network sandbox
 
 ```bash
 # 1. Clone the production workspace tree
-git clone -b main https://github.com
+git clone -b main https://github.com/dwayne-dcosta/llama-guard-sentinel.git
 cd llama-guard-sentinel
 
 # 2. Navigate to the orchestration directory
